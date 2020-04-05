@@ -1,0 +1,15 @@
+{
+    "workshop": {
+        "title": "PL/SQL Package to Generate Code to Build Machine Learning Packages",
+        "description": "This repo provides two Oracle stored procedures that set up a configuration and then generate code to build machine learning models and related artifacts",
+        "theme": "default",
+        "labs": [
+            {
+                "number": "10",
+                "filename": "README.md",
+                "title": "Options",
+                "description": "Options"
+            }
+        ]
+    }
+}
