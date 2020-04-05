@@ -4,7 +4,7 @@ There are several good examples and tutorials/workshops that show how to write s
 
 ## **Step 1:** Grant user privileges
 
-- Normally dm_role (or oml_developer) roles are sufficient to build models.  However when pl/sql is executed in stored procedures the grants must be direct and not through a role.  Execute the following grants from admin (or sys in dbcs) to ml_user (or other ml user name)
+- Normally dm\_role (or oml\_developer) roles are sufficient to build models.  However when pl/sql is executed in stored procedures the grants must be direct and not through a role.  Execute the following grants from admin (or sys in dbcs) to ml\_user (or other ml user name)
 ```
 <copy>grant unlimited storage to ml_user;
 grant execute on dbms_data_mining to ml_user;
