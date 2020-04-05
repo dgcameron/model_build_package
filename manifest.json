@@ -1,21 +1,34 @@
 {
-    "workshop": {
-        "title": "PL/SQL Package to Generate Code to Build Machine Learning Packages",
-        "description": "This repo provides two Oracle stored procedures that set up a configuration and then generate code to build machine learning models and related artifacts",
-        "theme": "default",
-        "labs": [
-            {
-                "number": "10",
-                "filename": "README.md",
-                "title": "Options",
-                "description": "Options"
-            },
-            {
-                "number": "20",
-                "filename": "README.md",
-                "title": "Options",
-                "description": "Options"
-            }
-        ]
-    }
+  "tutorials": [
+      {
+        "title": "Oracle Machine Learning with Autonomous Database",
+        "description": "Introduction",
+        "publisheddate": "3/24/2020",
+        "filename": "README.md"
+      },
+      {
+        "title": "Lab 1: Introduction and Setup",
+        "description": "Create services and set up the environment for the rest of the labs.",
+        "publisheddate": "3/24/2020",
+        "filename": "1.md"
+      },
+      {
+        "title": "Lab 2: Machine Learning",
+        "description": "Explore Zeppelin notebooks and create a ML model on customer credit data set.",
+        "publisheddate": "3/24/2020",
+        "filename": "2.md"
+      },
+      {
+        "title": "Lab 3: Migrate ML Model to ATP",
+        "description": "Export the ML model from ADW and import into ATP",
+        "publisheddate": "3/24/2020",
+        "filename": "3.md"
+      },
+      {
+        "title": "Lab 4: Operationalize the ML Model in an Application and Expose it as a REST Endpoint",
+        "description": "Set up the ATP environment, import and APEX application and explore how ADB can be embedded into applications.",
+        "publisheddate": "3/24/2020",
+        "filename": "4.md"
+      }
+    ]
 }

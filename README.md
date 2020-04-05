@@ -1,160 +1,29 @@
-# model_build_package
+# Oracle Machine Learning with Autonomous Database
 
-This is a git containing pl/sql code that generates model build code.  Super simple to use and very flexible.
+Welcome to this Oracle Machine Learning workshop. Machine learning is a powerful technique for analyzing data, and in this sequence of labs we will show you how to apply it to the most valuable data in your organization - existing enterprise data in Oracle Database. If you are an Oracle data professional but not a data scientist, this workshop will take you through your first machine learning project from data preparation to successful deployment of a model integrated into an APEX application.
 
+To illustrate this lab, you are going to work with Alpha Office, a fictitious company who sells high cost products on installment plans. They have noticed that revenues and margins are down somewhat, and that appears to be because too many customers purchase a product, but then are not able to keep up the payments. They return the product which then has to be sold as used or refurbished. 
 
-```
-CREATE OR REPLACE PROCEDURE create_config_table IS 
-BEGIN
--- admin needs to: grant create table to ml_user
+Alpha Office can purchase credit score information, but they need more than that. They need to be able to include data that predicts the likelihood of a customer being unable to continue payments and “involuntarily churning”. They need to do a better job on approvals to cut down this problem. So for each applicant they need to determine if they have a suitable credit and payment profile. You are going to use machine learning, and customer data from their data warehouse, to build, train and deploy a model that will do just that for them.
 
-begin
-execute immediate 'DROP table model_build_settings';
-exception when others then null;
-end;
+This is a fictitious example, but it reflects a real world need. You keep your most valuable data in Oracle Database. But do you get the most value out of that data? Are there business problems that you could help your company to solve with machine learning? After you have completed this lab, you will have some of the core expertise to start applying machine learning to your company’s data and business problems. We wish you lots of success!
 
-execute immediate 'create table model_build_settings (setting_name varchar2(30),setting_value varchar2(4000))';
+We will lead you through all the steps to create an Oracle Cloud trial account, provision the services you need, and do the needed machine learning work. If you have an existing personal or company cloud account you are welcome to use that. Otherwise, the first step (if you haven’t already done so) is to create a free Oracle Cloud trial account, following the link below. You can complete this lab using just the free tier, though feel free to experiment with other services, since the free tier comes with a $300 credit valid for 30 days. As soon as you have an account you are ready to start lab 1. (Note that although the sign-up process will ask for a credit card, we will not charge that card unless you decide to upgrade to a paid subscription. So it’s safe to sign up - you won’t get an unexpected bill like with some other cloud vendors).
 
-execute immediate 'insert into model_build_settings values (''ALGO_NAME'', ''ALGO_DECISION_TREE'')';
-execute immediate 'insert into model_build_settings values (''PREP_AUTO'', ''ON'')';
-execute immediate 'insert into model_build_settings values (''ODMS_TEXT_POLICY_NAME'',''MY_POLICY'')';
-execute immediate 'insert into model_build_settings values (''TREE_TERM_MAX_DEPTH'', 7)';
-execute immediate 'insert into model_build_settings values (''TREE_TERM_MINREC_SPLIT'', 20)';
-execute immediate 'insert into model_build_settings values (''TREE_TERM_MINPCT_SPLIT'', .1)';
-execute immediate 'insert into model_build_settings values (''TREE_TERM_MINREC_NODE'', 10)';
-execute immediate 'insert into model_build_settings values (''TREE_TERM_MINPCT_NODE'', 0.05)';
-commit;
+### **Step 1:** Acquire an Oracle Cloud trial account
 
-begin
-execute immediate 'DROP table model_config';
-exception when others then null;
-end;
+1. 1. If you already have an Oracle Cloud trial account, or you are able to use an existing corporate cloud account, you may skip to the next part.
 
-execute immediate 'create table model_config ( '||
-'model_name				varchar2(100) '||
-', apply_table_name			varchar2(100) '||
-', lift_table_name			varchar2(100) '||
-', algorithm_name			varchar2(100) '||
-', train_table_Name			varchar2(100) '||
-', build_settings_table_name	varchar2(100) '||
-', case_id				varchar2(100) '||
-', target_column_name		VARCHAR2(100) '||
-', mining_function			VARCHAR2(100) '||
-', test_table_name			VARCHAR2(100) '||
-', positive_target_value		VARCHAR2(100) '||
-', confusion_matrix_table_name VARCHAR2(100))';
+2. Please <a href="https://myservices.us.oraclecloud.com/mycloud/signup?language=en&sourceType=:ow:lp:cpo::RC_NAMK190523P00161:APEX_ATP_HOL&intcmp=:ow:lp:cpo::RC_NAMK190523P00161:APEX_ATP_HOL" target="_trial_">click this link to create your free account</a>. When you complete the registration process you'll receive an account with a $300 credit that will enable you to complete the lab for free. You can then use any remaining credit to continue to explore the Oracle Cloud.
 
-execute immediate 'insert into model_config values(''ALL_CASES_DT'',''ALL_CASES_APPLY_RESULT_DT'',''ALL_CASES_LIFT_DT'',''ALGO_DECISION_TREE'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_DT'')';
-execute immediate 'insert into model_config values(''ALL_CASES_SVM'',''ALL_CASES_APPLY_RESULT_SVM'',''ALL_CASES_LIFT_SVM'',''ALGO_SUPPORT_VECTOR_MACHINES'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_SVM'')';
-execute immediate 'insert into model_config values(''ALL_CASES_RF'',''ALL_CASES_APPLY_RESULT_RF'',''ALL_CASES_LIFT_RF'',''ALGO_RANDOM_FOREST'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_RF'')';
-execute immediate 'insert into model_config values(''ALL_CASES_NN'',''ALL_CASES_APPLY_RESULT_NN'',''ALL_CASES_LIFT_NN'',''ALGO_NEURAL_NETWORK'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_NN'')';
-execute immediate 'insert into model_config values(''ALL_CASES_NB'',''ALL_CASES_APPLY_RESULT_NB'',''ALL_CASES_LIFT_NB'',''ALGO_NAIVE_BAYES'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_NB'')';
-commit;
+3. Soon after requesting your trial you will receive the following email. Once you receive this email you can proceed to Part 2.
 
-END create_config_table;
-/
+  ![](images/0/get-started-email.png " ")
 
----------------------------------------------------------
-CREATE OR REPLACE PROCEDURE build_models IS 
-v_accuracy number;
--- admin needs to:
--- grant create mining model to ml_user;
--- grant execute on dbms_data_mining to ml_user;
-BEGIN
+### **Step 2:** Navigate to Lab 1
 
-begin
-execute immediate 'DROP TABLE all_lift_data_cases PURGE';
-exception when others then null;
-end;
+- Once the setup is complete you can move on to lab 100 by clicking on the Menu Icon in the upper left corner of the browser window. You're now ready to continue with Lab 100.
 
-begin
-execute immediate 'CREATE TABLE all_lift_data_cases (algo_name VARCHAR2(50), QUANTILE_NUMBER NUMBER, GAIN_CUMULATIVE NUMBER)';
-exception when others then null;
-end;
+  ![](images/0/menu1.png " ")
 
--- loop through algorithms
-
-FOR i IN (select * from model_config) LOOP
-
-execute immediate 'delete from '||i.build_settings_table_name||' where setting_name = ''ALGO_NAME''';
-execute immediate 'insert into '||i.build_settings_table_name||' select ''ALGO_NAME'', '''||i.algorithm_name||''' from dual';
-
-begin
-dbms_data_mining.drop_model(i.model_name);
-exception when others then null;
-end;
-
-begin
-dbms_data_mining.create_model(
-	model_name		=> i.model_name,
-	mining_function	=> i.mining_function, 
-	data_table_name	=> i.train_table_name, 
-	case_id_column_name => i.case_id,
-	target_column_name	=> i.target_column_name, 
-	settings_table_name	=> i.build_settings_table_name);
-end;
-
--- drop apply result
-
-begin
-execute immediate 'drop table '||i.apply_table_name||' purge';
-execute immediate 'drop table '||i.lift_table_name||' purge';
-exception when others then null;
-end;
-
--- test the model by generating a apply result and then create a lift result
-
-begin
-dbms_data_mining.apply(
-	model_name		=> i.model_name,
-	data_table_name	=> i.test_table_name,
-	case_id_column_name	=> i.case_id,
-	result_table_name	=> i.apply_table_name);
-exception when others then null;
-end;
-
-begin
-dbms_data_mining.compute_lift(
-	apply_result_table_name		=> i.apply_table_name,
-	target_table_name			=> i.test_table_name,
-	case_id_column_name			=> i.case_id,
-	target_column_name			=> i.target_column_name,
-	lift_table_name			=> i.lift_table_name,
-	positive_target_value		=> i.positive_target_value,
-	score_column_name			=> 'PREDICTION',
-	score_criterion_column_name => 'PROBABILITY',
-	num_quantiles				=> 100);
-exception when others then null;
-end;
-
-begin
-execute immediate 'insert into all_lift_data_cases select '''||i.algorithm_name||''', QUANTILE_NUMBER, GAIN_CUMULATIVE from '||i.lift_table_name;
-exception when others then null;
-end;
-
--- build confusion matrix table
-
-begin
-EXECUTE IMMEDIATE 'drop table '||i.confusion_matrix_table_name;
-exception when others then null;
-end;
-
-begin
-DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX (
-	accuracy                     => v_accuracy,
-	apply_result_table_name      => i.apply_table_name,
-	target_table_name            => i.test_table_name,
-	case_id_column_name          => i.case_id,
-	target_column_name           => i.target_column_name,
-	confusion_matrix_table_name  => i.confusion_matrix_table_name,
-	score_column_name            => 'PREDICTION',
-	score_criterion_column_name  => 'PROBABILITY',
-	score_criterion_type         => 'PROBABILITY');
-DBMS_OUTPUT.PUT_LINE(i.model_name||' Accuracy: ' || ROUND(v_accuracy * 100,2));
-end;
-
-END LOOP;
-
-END build_models;
-/
-```
+  ![](images/0/menu2.png " ")  
