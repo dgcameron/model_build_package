@@ -1,34 +1,10 @@
 {
   "tutorials": [
       {
-        "title": "Oracle Machine Learning with Autonomous Database",
-        "description": "Introduction",
-        "publisheddate": "3/24/2020",
+        "title": "Model Build Packages",
+        "description": "This includes packages to generate and execute Oracle ML pl/sql code that builds builds machine learning models.",
+        "publisheddate": "4/5/2020",
         "filename": "README.md"
-      },
-      {
-        "title": "Lab 1: Introduction and Setup",
-        "description": "Create services and set up the environment for the rest of the labs.",
-        "publisheddate": "3/24/2020",
-        "filename": "1.md"
-      },
-      {
-        "title": "Lab 2: Machine Learning",
-        "description": "Explore Zeppelin notebooks and create a ML model on customer credit data set.",
-        "publisheddate": "3/24/2020",
-        "filename": "2.md"
-      },
-      {
-        "title": "Lab 3: Migrate ML Model to ATP",
-        "description": "Export the ML model from ADW and import into ATP",
-        "publisheddate": "3/24/2020",
-        "filename": "3.md"
-      },
-      {
-        "title": "Lab 4: Operationalize the ML Model in an Application and Expose it as a REST Endpoint",
-        "description": "Set up the ATP environment, import and APEX application and explore how ADB can be embedded into applications.",
-        "publisheddate": "3/24/2020",
-        "filename": "4.md"
       }
     ]
 }
