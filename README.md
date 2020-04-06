@@ -2,6 +2,9 @@
 
 There are several good examples and tutorials/workshops that show how to write sql and pl/sql that create machine learning models.  To simplify the process this package was created as a stored procedure, that when invoked creates and populates a settings table, a configuration table, and then provides a second procedure to build the machine learning artifacts (models, lift tables, apply tables, and confusion matrix tables).  The process is as follows.  Note it assumes you create ML user "ml_user".
 
+Once set up, you would just do the following for a new project:
+- update your model settings and specify the table, target column, algorithm, case_id, etc. and execute the build ("exec model_build_pkg.build_models"), which would generate the code and run the build.
+
 ## **Step 1:** Grant user privileges
 
 - Normally dm\_role (or oml\_developer) roles are sufficient to build models.  However when pl/sql is executed in stored procedures the grants must be direct and not through a role.  Execute the following grants from admin (or sys in dbcs) to ml\_user (or other ml user name).
