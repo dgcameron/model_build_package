@@ -104,23 +104,19 @@ end;
 
 execute immediate 'create table model_config ( '||
 'model_name				varchar2(100) '||
-', apply_table_name			varchar2(100) '||
-', lift_table_name			varchar2(100) '||
 ', algorithm_name			varchar2(100) '||
 ', train_table_Name			varchar2(100) '||
-', build_settings_table_name	varchar2(100) '||
 ', case_id				varchar2(100) '||
 ', target_column_name		VARCHAR2(100) '||
 ', mining_function			VARCHAR2(100) '||
 ', test_table_name			VARCHAR2(100) '||
-', positive_target_value		VARCHAR2(100) '||
-', confusion_matrix_table_name VARCHAR2(100))';
+', positive_target_value		VARCHAR2(100)) ';
 
-execute immediate 'insert into model_config values(''ALL_CASES_DT'',''ALL_CASES_APPLY_RESULT_DT'',''ALL_CASES_LIFT_DT'',''ALGO_DECISION_TREE'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_DT'')';
-execute immediate 'insert into model_config values(''ALL_CASES_SVM'',''ALL_CASES_APPLY_RESULT_SVM'',''ALL_CASES_LIFT_SVM'',''ALGO_SUPPORT_VECTOR_MACHINES'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_SVM'')';
-execute immediate 'insert into model_config values(''ALL_CASES_RF'',''ALL_CASES_APPLY_RESULT_RF'',''ALL_CASES_LIFT_RF'',''ALGO_RANDOM_FOREST'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_RF'')';
-execute immediate 'insert into model_config values(''ALL_CASES_NN'',''ALL_CASES_APPLY_RESULT_NN'',''ALL_CASES_LIFT_NN'',''ALGO_NEURAL_NETWORK'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_NN'')';
-execute immediate 'insert into model_config values(''ALL_CASES_NB'',''ALL_CASES_APPLY_RESULT_NB'',''ALL_CASES_LIFT_NB'',''ALGO_NAIVE_BAYES'',''ALL_CASES_TRAIN_T'',''MODEL_BUILD_SETTINGS'',''INCIDENT_NUMBER'',''CATEGORIZATION_TIER_2'',''CLASSIFICATION'',''ALL_CASES'',''SW'',''ALL_CASES_CONFUSION_MATRIX_NB'')';
+execute immediate 'insert into model_config values(''INSURANCE_DT'',''ALGO_DECISION_TREE'',''CUST_INSUR_LTV'',''CUST_ID'',''LTV_BIN'',''CLASSIFICATION'',''CUST_INSUR_LTV_APPLY'',''1'')';
+execute immediate 'insert into model_config values(''INSURANCE_SVM'',''ALGO_SUPPORT_VECTOR_MACHINES'',''CUST_INSUR_LTV'',''CUST_ID'',''LTV_BIN'',''CLASSIFICATION'',''CUST_INSUR_LTV_APPLY'',''1'')';
+execute immediate 'insert into model_config values(''INSURANCE_RF'',''ALGO_RANDOM_FOREST'',''CUST_INSUR_LTV'',''CUST_ID'',''LTV_BIN'',''CLASSIFICATION'',''CUST_INSUR_LTV_APPLY'',''1'')';
+execute immediate 'insert into model_config values(''INSURANCE_NN'',''ALGO_NEURAL_NETWORK'',''CUST_INSUR_LTV'',''CUST_ID'',''LTV_BIN'',''CLASSIFICATION'',''CUST_INSUR_LTV_APPLY'',''1'')';
+execute immediate 'insert into model_config values(''INSURANCE_NB'',''ALGO_NAIVE_BAYES'',''CUST_INSUR_LTV'',''CUST_ID'',''LTV_BIN'',''CLASSIFICATION'',''CUST_INSUR_LTV_APPLY'',''1'')';
 commit;
 
 END create_config;
@@ -131,17 +127,13 @@ PROCEDURE build_models IS
 
 TYPE model_config_rt IS RECORD (
 model_name				varchar2(100)
-, apply_table_name			varchar2(100)
-, lift_table_name			varchar2(100)
 , algorithm_name			varchar2(100)
 , train_table_Name			varchar2(100)
-, build_settings_table_name	varchar2(100)
 , case_id					varchar2(100)
 , target_column_name		VARCHAR2(100)
 , mining_function			VARCHAR2(100)
 , test_table_name			VARCHAR2(100)
-, positive_target_value		VARCHAR2(100)
-, confusion_matrix_table_name VARCHAR2(100));
+, positive_target_value		VARCHAR2(100));
 
 TYPE model_config_aat IS TABLE OF model_config_rt INDEX BY PLS_INTEGER;
  
@@ -156,15 +148,15 @@ BEGIN
 BEGIN
 EXECUTE IMMEDIATE 'select count(*) from model_config';
 
--- drop/create all_lift_data_cases table
+-- drop/create all_lift_data table
 
 begin
-execute immediate 'DROP TABLE all_cases_lift_data PURGE';
+execute immediate 'DROP TABLE all_lift_data PURGE';
 exception when others then null;
 end;
 
 begin
-execute immediate 'CREATE TABLE all_cases_lift_data (algo_name VARCHAR2(50), QUANTILE_NUMBER NUMBER, GAIN_CUMULATIVE NUMBER)';
+execute immediate 'CREATE TABLE all_lift_data (algo_name VARCHAR2(50), QUANTILE_NUMBER NUMBER, GAIN_CUMULATIVE NUMBER)';
 exception when others then null;
 end;
 
@@ -175,8 +167,8 @@ EXECUTE IMMEDIATE q'[select * from model_config]' BULK COLLECT INTO l_model_conf
 -- FOR i IN (select * from model_config) LOOP
 FOR i IN 1 .. l_model_config.COUNT LOOP
 
-execute immediate 'delete from '||l_model_config (i).build_settings_table_name||' where setting_name = ''ALGO_NAME''';
-execute immediate 'insert into '||l_model_config (i).build_settings_table_name||' select ''ALGO_NAME'', '''||l_model_config (i).algorithm_name||''' from dual';
+execute immediate 'delete from model_build_settings where setting_name = ''ALGO_NAME''';
+execute immediate 'insert into model_build_settings select ''ALGO_NAME'', '''||l_model_config (i).algorithm_name||''' from dual';
 
 begin
 dbms_data_mining.drop_model(l_model_config (i).model_name);
@@ -190,14 +182,14 @@ dbms_data_mining.create_model(
 	data_table_name	=> l_model_config (i).train_table_name, 
 	case_id_column_name => l_model_config (i).case_id,
 	target_column_name	=> l_model_config (i).target_column_name, 
-	settings_table_name	=> l_model_config (i).build_settings_table_name);
+	settings_table_name	=> 'model_build_settings');
 end;
 
 -- drop apply result
 
 begin
-execute immediate 'drop table '||l_model_config (i).apply_table_name||' purge';
-execute immediate 'drop table '||l_model_config (i).lift_table_name||' purge';
+execute immediate 'drop table '||l_model_config (i).model_name||'_apply purge';
+execute immediate 'drop table '||l_model_config (i).model_name||'_lift purge';
 exception when others then null;
 end;
 
@@ -208,17 +200,17 @@ dbms_data_mining.apply(
 	model_name		=> l_model_config (i).model_name,
 	data_table_name	=> l_model_config (i).test_table_name,
 	case_id_column_name	=> l_model_config (i).case_id,
-	result_table_name	=> l_model_config (i).apply_table_name);
+	result_table_name	=> l_model_config (i).model_name||'_apply');
 exception when others then null;
 end;
 
 begin
 dbms_data_mining.compute_lift(
-	apply_result_table_name		=> l_model_config (i).apply_table_name,
+	apply_result_table_name		=> l_model_config (i).model_name||'_apply',
 	target_table_name			=> l_model_config (i).test_table_name,
 	case_id_column_name			=> l_model_config (i).case_id,
 	target_column_name			=> l_model_config (i).target_column_name,
-	lift_table_name			    => l_model_config (i).lift_table_name,
+	lift_table_name			=> l_model_config (i).model_name||'_lift',
 	positive_target_value		=> l_model_config (i).positive_target_value,
 	score_column_name			=> 'PREDICTION',
 	score_criterion_column_name => 'PROBABILITY',
@@ -227,25 +219,25 @@ exception when others then null;
 end;
 
 begin
-execute immediate 'insert into all_cases_lift_data select '''||l_model_config (i).algorithm_name||''', QUANTILE_NUMBER, GAIN_CUMULATIVE from '||l_model_config (i).lift_table_name;
+execute immediate 'insert into all_lift_data select '''||l_model_config (i).algorithm_name||''', QUANTILE_NUMBER, GAIN_CUMULATIVE from '||l_model_config (i).model_name||'_lift';
 exception when others then null;
 end;
 
 -- build confusion matrix table
 
 begin
-EXECUTE IMMEDIATE 'drop table '||l_model_config (i).confusion_matrix_table_name;
+EXECUTE IMMEDIATE 'drop table '||l_model_config (i).model_name||'_cmatrix';
 exception when others then null;
 end;
 
 begin
 DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX (
 	accuracy                     => v_accuracy,
-	apply_result_table_name      => l_model_config (i).apply_table_name,
+	apply_result_table_name      => l_model_config (i).model_name||'_apply',
 	target_table_name            => l_model_config (i).test_table_name,
 	case_id_column_name          => l_model_config (i).case_id,
 	target_column_name           => l_model_config (i).target_column_name,
-	confusion_matrix_table_name  => l_model_config (i).confusion_matrix_table_name,
+	confusion_matrix_table_name  => l_model_config (i).model_name||'_cmatrix',
 	score_column_name            => 'PREDICTION',
 	score_criterion_column_name  => 'PROBABILITY',
 	score_criterion_type         => 'PROBABILITY');
