@@ -9,7 +9,7 @@ Once set up, you would just do the following for a new project:
 
 - Normally dm\_role (or oml\_developer) roles are sufficient to build models.  However when pl/sql is executed in stored procedures the grants must be direct and not through a role.  Execute the following grants from admin (or sys in dbcs) to ml\_user (or other ml user name).
 ```
-<copy>grant unlimited storage to ml_user;
+<copy>alter user ml_user quota 100m on data;
 grant execute on dbms_data_mining to ml_user;
 grant create mining model to ml_user;
 grant create table to ml_user;</copy>
