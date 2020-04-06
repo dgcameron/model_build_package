@@ -5,11 +5,6 @@
         "description": "This includes packages to generate and execute Oracle ML pl/sql code that builds builds machine learning models.",
         "publisheddate": "4/5/2020",
         "filename": "README.md"
-      },
-      {
-        "title": "Model Build Packages2",
-        "description": "This includes packages to generate and execute Oracle ML pl/sql code that builds builds machine learning models.",
-        "publisheddate": "4/5/2020",
-        "filename": "README.md"
       }
-}
+    ]
+  }
