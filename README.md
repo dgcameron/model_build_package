@@ -1,9 +1,9 @@
 # Oracle PL/SQL Packages to Automate Oracle Machine Learning Model Builds
 
-There are several good examples and tutorials/workshops that show how to write sql and pl/sql that create machine learning models.  To simplify the process this package was created as a stored procedure, that when invoked creates and populates a settings table, a configuration table, and then provides a second procedure to build the machine learning artifacts (models, lift tables, apply tables, and confusion matrix tables).  The process is as follows.  Note it assumes you create ML user "ml_user".
+There are several good examples and tutorials/workshops that show how to write sql and pl/sql that create machine learning models.  To simplify the process this package was created as a stored procedure, that when invoked creates and populates a settings table, a configuration table, and then provides a second procedure to build the machine learning artifacts (models, lift tables, apply tables, and confusion matrix tables).  
 
 Once set up, you would just do the following for a new project:
-- update your model settings and specify the table, target column, algorithm, case_id, etc. and execute the build ("exec model_build_pkg.build_models"), which would generate the code and run the build.
+- Update your model settings and specify the table, target column, algorithm, case\_id, etc. and execute the build ("exec model\_build\_pkg.build\_models"), which would generate the code and run the build.  Note this assumes you create ML user "ml_user".
 
 ## **Step 1:** Grant user privileges
 
